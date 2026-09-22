@@ -1,0 +1,12 @@
+{
+  "name": "aeroflow-360",
+  "version": "1.0.0",
+  "description": "AeroFlow 360 — Autonomous Aircraft Turnaround & Ramp Operations Automation Platform for Airports and Airlines",
+  "main": "index.html",
+  "scripts": {
+    "start": "serve ."
+  },
+  "keywords": ["aviation", "airport-operations", "turnaround-management", "automation", "ground-handling"],
+  "author": "BBA Aviation Management",
+  "license": "MIT"
+}

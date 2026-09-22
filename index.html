@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AeroFlow 360 — Autonomous Aircraft Turnaround & Smart Ramp Operations</title>
+  
+  <!-- Google Fonts for Modern Aviation HUD Aesthetics -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Core Stylesheet -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- ✈️ AEROFLOW 360 TOP COMMAND HEADER -->
+  <header class="aero-header">
+    <div class="header-inner">
+      <div class="brand-section">
+        <div class="brand-logo-icon">✈️</div>
+        <div class="brand-text">
+          <h1>AeroFlow 360 <span class="brand-badge">AOCC v2.4</span></h1>
+          <div class="brand-subtitle">
+            <span>Autonomous Ramp Dispatch & Turnaround Automation</span>
+            <span>•</span>
+            <span style="color: var(--accent-cyan);">BBA Aviation Management</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="header-telemetry" id="airportHeaderMeta">
+        <!-- Injected by app.js (Airport, METAR, Runway) -->
+      </div>
+
+      <div class="header-actions">
+        <div class="telemetry-pill" id="dbTelemetryPill" style="border-color: rgba(16, 185, 129, 0.4);">
+          <span class="pulse-dot" style="background: #10b981;"></span>
+          <span>DB: <strong style="color: #34d399;">Active (SQL/JSON)</strong> [4 Flights]</span>
+        </div>
+
+        <div class="telemetry-pill" style="border-color: rgba(56, 189, 248, 0.4);">
+          <span>CLOCK:</span>
+          <strong id="liveAoccClock" style="color: var(--accent-cyan);">14:35:00 IST</strong>
+        </div>
+
+        <button class="btn btn-secondary btn-sm" onclick="AeroApp.openMobileCrewSimulator()" title="View mobile ramp crew smartphone interface">
+          📱 Crew Mobile View
+        </button>
+
+        <button class="btn btn-primary btn-sm" onclick="AeroApp.openClearanceCertificateModal()" title="Generate Official IATA Turnaround Summary & Sign-off">
+          📄 IATA Clearance Sheet
+        </button>
+
+        <button class="btn btn-pitch btn-sm" onclick="AeroApp.openPitchDeck()" title="Launch 5-minute interactive jury presentation">
+          🎤 Jury Pitch Mode
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- 🎛️ MAIN OPERATIONAL WRAPPER -->
+  <main class="main-wrapper">
+
+    <!-- 🚨 EMERGENCY SLA ESCALATION BROADCAST BANNER (Hidden by default, triggered on delay) -->
+    <div class="sla-alert-banner" id="slaAlertBanner" style="display: none;">
+      <div class="sla-alert-left">
+        <div class="sla-alert-icon">⚠️</div>
+        <div class="sla-alert-text" id="slaAlertText">
+          <h4>🚨 AUTOMATED SLA DEVIATION ESCALATION</h4>
+          <p>Critical milestone threshold breached. Auto-dispatched incident ticket to Ramp Duty Officer.</p>
+        </div>
+      </div>
+      <button class="btn btn-sm btn-primary" onclick="AeroApp.runScenario('optimal')">⚡ Auto-Resolve & Recover</button>
+    </div>
+
+    <!-- 📊 EXECUTIVE KPI COMMAND CARDS -->
+    <section class="kpi-grid" id="kpiCardsContainer">
+      <!-- Injected by app.js -->
+    </section>
+
+    <!-- 🧭 NAVIGATION TABS -->
+    <nav class="nav-tabs">
+      <button class="tab-btn active" data-tab="turnaround" onclick="AeroApp.switchTab('turnaround')">
+        ⏱️ Turnaround OCC Matrix
+      </button>
+      <button class="tab-btn" data-tab="gse" onclick="AeroApp.switchTab('gse')">
+        🚜 Ground Support Equipment (GSE)
+      </button>
+      <button class="tab-btn" data-tab="roi" onclick="AeroApp.switchTab('roi')">
+        💰 Aviation ROI & Cost Savings
+      </button>
+      <button class="tab-btn" data-tab="delays" onclick="AeroApp.switchTab('delays')">
+        📋 IATA Delay Attribution (AHM 730)
+      </button>
+      <button class="tab-btn" data-tab="audit" onclick="AeroApp.switchTab('audit')">
+        💽 Database & Audit Ledger
+      </button>
+    </nav>
+
+    <!-- ====================================================================
+         TAB 1: TURNAROUND OCC COMMAND MATRIX
+         ==================================================================== -->
+    <div class="tab-content-pane" id="tabPane_turnaround">
+      <div class="aero-grid-layout">
+        
+        <!-- LEFT COLUMN: ACTIVE FLIGHT QUEUE & GATES -->
+        <aside class="sidebar-column">
+          
+          <div class="section-panel">
+            <div class="panel-header">
+              <span class="panel-title">🛬 Active Turnaround Queue</span>
+              <span class="brand-badge" style="background: rgba(16, 185, 129, 0.15); color: var(--accent-green);">4 Active</span>
+            </div>
+            <div class="flight-card-list" id="flightListContainer">
+              <!-- Injected by app.js -->
+            </div>
+          </div>
+
+          <div class="section-panel">
+            <div class="panel-header">
+              <span class="panel-title">📍 Gate Allocation Status</span>
+              <span style="font-size: 0.75rem; color: var(--text-dim);">Gates G1 - G8</span>
+            </div>
+            <div class="gate-matrix-grid" id="gateMatrixMiniGrid">
+              <!-- Injected by app.js -->
+            </div>
+          </div>
+
+        </aside>
+
+        <!-- RIGHT COLUMN: FLIGHT SPOTLIGHT & 8 CRITICAL PATH MILESTONES -->
+        <section class="main-content-column">
+          
+          <!-- Flight Spotlight Hero -->
+          <div class="flight-spotlight-hero" id="flightSpotlightHero">
+            <!-- Injected by app.js -->
+          </div>
+
+          <!-- Milestones Section Header -->
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <div>
+              <h3 style="font-size: 1.15rem; font-weight: 800; display: flex; align-items: center; gap: 0.5rem;">
+                <span>🎯 Synchronized Critical Path Milestones (35-Min Standard TAT)</span>
+              </h3>
+              <p style="font-size: 0.8rem; color: var(--text-muted);">
+                Single-tap field handshake eliminates manual walkie-talkie radio logs and ensures 100% digital auditability.
+              </p>
+            </div>
+            <span class="telemetry-pill" style="font-size: 0.75rem;">
+              <span class="pulse-dot"></span> Telemetry Sync: <strong>Active</strong>
+            </span>
+          </div>
+
+          <!-- 8 Turnaround Milestone Rows -->
+          <div class="milestones-container" id="milestonesContainer">
+            <!-- Injected by app.js -->
+          </div>
+
+          <!-- 🎮 JURY SCENARIO & STRESS-TEST SIMULATOR TOOLBAR -->
+          <div class="simulator-box">
+            <div class="simulator-title">
+              <span>⚡ Live Hackathon Demo Simulator:</span>
+            </div>
+            <div class="simulator-buttons">
+              <button class="btn btn-sm btn-success" onclick="AeroApp.runScenario('optimal')">
+                🚀 Simulate 26-Min Fast Turn
+              </button>
+              <button class="btn btn-sm btn-warning" onclick="AeroApp.runScenario('catering_delay')">
+                ⚠️ Inject Catering Hydraulic Jam
+              </button>
+              <button class="btn btn-sm btn-primary" onclick="AeroApp.runScenario('fuel_anomaly')">
+                ⛽ Test Digital Fuel Chit Sync
+              </button>
+            </div>
+          </div>
+
+        </section>
+
+      </div>
+    </div>
+
+    <!-- ====================================================================
+         TAB 2: GROUND SUPPORT EQUIPMENT (GSE) FLEET DISPATCH
+         ==================================================================== -->
+    <div class="tab-content-pane" id="tabPane_gse" style="display: none;">
+      <div class="section-panel" style="margin-bottom: 1.5rem;">
+        <div class="panel-header">
+          <div>
+            <h3 style="font-size: 1.25rem; font-weight: 800;">🚜 Ground Support Equipment (GSE) Fleet Dispatch Matrix</h3>
+            <p style="font-size: 0.825rem; color: var(--text-muted);">
+              Real-time telemetry, battery/fuel reserves, and gate assignment for Pushback Tugs, Belt Loaders, and Fuel Bowsers.
+            </p>
+          </div>
+          <button class="btn btn-sm btn-primary" onclick="AeroApp.playAlertSound('chime'); alert('GSE Proximity Telemetry Refreshed');">
+            🔄 Refresh GSE Telemetry
+          </button>
+        </div>
+
+        <div class="gse-grid" id="gseGridContainer">
+          <!-- Injected by app.js -->
+        </div>
+      </div>
+    </div>
+
+    <!-- ====================================================================
+         TAB 3: AVIATION BUSINESS ROI & COST SAVINGS CALCULATOR
+         ==================================================================== -->
+    <div class="tab-content-pane" id="tabPane_roi" style="display: none;">
+      <div class="roi-container">
+        
+        <div class="calculator-controls">
+          <div>
+            <span class="pitch-slide-badge" style="margin-bottom: 0.5rem;">BBA AVIATION MANAGEMENT FINANCIAL MODEL</span>
+            <h3 style="font-size: 1.45rem; font-weight: 900; margin-bottom: 0.35rem;">Turnaround Delay Cost Avoidance Engine</h3>
+            <p style="font-size: 0.85rem; color: var(--text-muted);">
+              Adjust operational variables to evaluate airline financial savings, APU fuel reduction, and ESG carbon offsets.
+            </p>
+          </div>
+
+          <div class="slider-group">
+            <div class="slider-header">
+              <span>Daily Flight Departures:</span>
+              <span class="slider-value-badge" id="valDailyFlights">40 Flights</span>
+            </div>
+            <input type="range" class="range-input" id="sliderDailyFlights" min="10" max="150" value="40" step="5" oninput="AeroApp.calculateROI()">
+          </div>
+
+          <div class="slider-group">
+            <div class="slider-header">
+              <span>Minutes Saved per Turnaround (TAT):</span>
+              <span class="slider-value-badge" id="valMinSaved">4.5 Mins</span>
+            </div>
+            <input type="range" class="range-input" id="sliderMinSaved" min="1.0" max="12.0" value="4.5" step="0.5" oninput="AeroApp.calculateROI()">
+          </div>
+
+          <div class="slider-group">
+            <div class="slider-header">
+              <span>Direct Delay Penalty Cost per Minute:</span>
+              <span class="slider-value-badge" id="valCostPerMin">₹10,500</span>
+            </div>
+            <input type="range" class="range-input" id="sliderCostPerMin" min="5000" max="25000" value="10500" step="500" oninput="AeroApp.calculateROI()">
+          </div>
+        </div>
+
+        <div class="roi-results-grid">
+          <div class="roi-result-card" style="border-color: rgba(16, 185, 129, 0.4);">
+            <span style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--accent-green);">Annual Direct Savings</span>
+            <div class="roi-card-value" id="roiAnnualSavingsCrores">₹6.88 Cr</div>
+            <span style="font-size: 0.75rem; color: var(--text-muted);">Direct cash loss eliminated</span>
+          </div>
+
+          <div class="roi-result-card" style="border-color: rgba(56, 189, 248, 0.4);">
+            <span style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--accent-cyan);">Aviation Fuel (ATF) Saved</span>
+            <div class="roi-card-value" id="roiFuelSavedLiters" style="color: var(--accent-cyan);">236,520 L</div>
+            <span style="font-size: 0.75rem; color: var(--text-muted);">Auxiliary APU idle reduction</span>
+          </div>
+
+          <div class="roi-result-card" style="border-color: rgba(139, 92, 246, 0.4);">
+            <span style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--accent-purple);">CO2 Emissions Avoided</span>
+            <div class="roi-card-value" id="roiCo2AvoidedTonnes" style="color: var(--accent-purple);">747 T</div>
+            <span style="font-size: 0.75rem; color: var(--text-muted);">ICAO Green Airport Goal</span>
+          </div>
+
+          <div class="roi-result-card" style="border-color: rgba(245, 158, 11, 0.4);">
+            <span style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--accent-amber);">Fleet OTP Surge</span>
+            <div class="roi-card-value" id="roiOtpBoostPct" style="color: var(--accent-amber);">+12.8%</div>
+            <span style="font-size: 0.75rem; color: var(--text-muted);">Punctuality rating boost</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ====================================================================
+         TAB 4: IATA DELAY ATTRIBUTIONS (AHM 730/780)
+         ==================================================================== -->
+    <div class="tab-content-pane" id="tabPane_delays" style="display: none;">
+      <div class="section-panel">
+        <div class="panel-header">
+          <div>
+            <h3 style="font-size: 1.25rem; font-weight: 800;">📋 IATA Standard Delay Attribution Codes (AHM 730 / 780)</h3>
+            <p style="font-size: 0.825rem; color: var(--text-muted);">
+              Standardized civil aviation delay classifications to resolve inter-agency blame between airlines, ground handlers, and airport operators.
+            </p>
+          </div>
+        </div>
+
+        <table class="cert-table" style="background: var(--bg-card); color: var(--text-main); border: 1px solid var(--border-color);">
+          <thead>
+            <tr style="background: var(--bg-input);">
+              <th style="color: var(--accent-cyan); border-color: var(--border-color);">IATA Code</th>
+              <th style="border-color: var(--border-color);">Category</th>
+              <th style="border-color: var(--border-color);">Description</th>
+              <th style="border-color: var(--border-color);">Standard Allowance</th>
+            </tr>
+          </thead>
+    <!-- ====================================================================
+         TAB 5: DATABASE STORAGE & AUDIT LEDGER
+         ==================================================================== -->
+    <div class="tab-content-pane" id="tabPane_audit" style="display: none;">
+      <div class="section-panel">
+        <div class="panel-header">
+          <div>
+            <h3 style="font-size: 1.25rem; font-weight: 800;">💽 Persistent Turnaround Database & Blockchain Audit Ledger</h3>
+            <p style="font-size: 0.825rem; color: var(--text-muted);">
+              Every milestone completion, delay escalation, digital fuel chit, and ground sign-off is committed to persistent storage with immutable audit hashes.
+            </p>
+          </div>
+          <div style="display: flex; gap: 0.5rem;">
+            <button class="btn btn-sm btn-primary" onclick="AeroApp.renderAuditLedger()">🔄 Refresh Logs</button>
+            <button class="btn btn-sm btn-secondary" onclick="AeroDB.clearDatabase(); location.reload();">🧹 Reset Database</button>
+          </div>
+        </div>
+
+        <table class="cert-table" style="background: var(--bg-card); color: var(--text-main); border: 1px solid var(--border-color);">
+          <thead>
+            <tr style="background: var(--bg-input);">
+              <th style="color: var(--accent-cyan); border-color: var(--border-color);">Log ID</th>
+              <th style="border-color: var(--border-color);">Timestamp (IST)</th>
+              <th style="border-color: var(--border-color);">Flight / Entity</th>
+              <th style="border-color: var(--border-color);">Event Type</th>
+              <th style="border-color: var(--border-color);">Authorized Signer</th>
+              <th style="border-color: var(--border-color);">Transaction Evidence</th>
+            </tr>
+          </thead>
+          <tbody id="auditLedgerTbody">
+            <!-- Injected by app.js -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ====================================================================
+       MODAL 1: BUILT-IN 5-MINUTE JURY PITCH DECK
+       ==================================================================== -->
+  <div class="modal-backdrop" id="pitchModal">
+    <div class="modal-window wide">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+          <span style="font-size: 1.35rem;">🎤</span>
+          <div>
+            <h3 style="font-size: 1.1rem; font-weight: 800;">TechRaga '26 — Official Jury Pitch Deck</h3>
+            <p style="font-size: 0.75rem; color: var(--text-muted);">Theme 5: Smart Business Management & Automation | BBA Aviation Management</p>
+          </div>
+        </div>
+        <button class="modal-close-btn" onclick="AeroApp.closeModal('pitchModal')">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="pitch-slide-container" id="pitchSlideContainer">
+          <!-- Slide injected dynamically by app.js -->
+        </div>
+
+        <div class="pitch-nav-footer">
+          <button class="btn btn-secondary btn-sm" id="pitchPrevBtn" onclick="AeroApp.prevSlide()">◀ Previous Slide</button>
+          <span id="pitchSlideCounter" style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted);">Slide 1 of 5</span>
+          <button class="btn btn-primary btn-sm" id="pitchNextBtn" onclick="AeroApp.nextSlide()">Next Slide ▶</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====================================================================
+       MODAL 2: RAMP CREW MOBILE SIMULATOR
+       ==================================================================== -->
+  <div class="modal-backdrop" id="crewMobileModal">
+    <div class="modal-window" style="max-width: 460px; background: transparent; border: none; box-shadow: none;">
+      <div style="text-align: right; margin-bottom: 0.5rem;">
+        <button class="modal-close-btn" style="background: rgba(0,0,0,0.6); color: #fff;" onclick="AeroApp.closeModal('crewMobileModal')">&times;</button>
+      </div>
+      <div class="modal-body" id="crewMobileContent" style="padding: 0;">
+        <!-- Mobile Frame injected by app.js -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ====================================================================
+       MODAL 3: IATA DIGITAL TURNAROUND CLEARANCE CERTIFICATE
+       ==================================================================== -->
+  <div class="modal-backdrop" id="clearanceModal">
+    <div class="modal-window wide">
+      <div class="modal-header">
+        <h3 style="font-size: 1.1rem; font-weight: 800;">📄 Official Turnaround Clearance & Delay Attribution</h3>
+        <div style="display: flex; gap: 0.5rem; align-items: center;">
+          <button class="btn btn-sm btn-primary" onclick="window.print()">🖨️ Print / Save as PDF</button>
+          <button class="modal-close-btn" onclick="AeroApp.closeModal('clearanceModal')">&times;</button>
+        </div>
+      </div>
+      <div class="modal-body" id="clearanceModalContent">
+        <!-- Certificate injected by app.js -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
